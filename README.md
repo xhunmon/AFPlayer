@@ -1,2 +1,2 @@
-# AFPlayer
-Android 上使用FFmpeg、OpenSL ES、OpenGL SE、MediaCodec等，实现简单的播放器，主要体现出相关知识点的使用。
+- [FFmpeg、x264、fdk-aac、openssl的交叉编译](https://qincji.gitee.io/2021/01/24/ffmpeg/21_build_for_android/)
+- [OpenSL ES播放PCM](https://qincji.gitee.io/2021/01/26/afplayer/01_opensl_es/)
