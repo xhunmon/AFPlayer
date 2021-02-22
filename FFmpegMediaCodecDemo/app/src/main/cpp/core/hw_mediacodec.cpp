@@ -70,6 +70,8 @@ static int decode_write(AVCodecContext *avctx, AVPacket *packet) {
             goto fail;
         }
 
+        HWLOGE("receive video frame success: pts=%lld",frame->pts);
+
         if (frame->format == hw_pix_fmt) {
             if ((ret = av_hwframe_transfer_data(sw_frame, frame, 0)) < 0) {
                 HWLOGE("Error transferring the data to system memory\n");
