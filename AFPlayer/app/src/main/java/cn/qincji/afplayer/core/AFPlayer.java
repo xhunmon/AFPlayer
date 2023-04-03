@@ -2,8 +2,6 @@ package cn.qincji.afplayer.core;
 
 import android.view.Surface;
 
-import java.io.File;
-
 import cn.qincji.afplayer.core.callback.OnAFCallback;
 
 /**
@@ -36,12 +34,16 @@ public class AFPlayer {
         native_setStatusCallback(onAFCallback);
     }
 
-    public void setDataSource(File srcFile, Surface surface){
-        native_setDataSource(srcFile.getAbsolutePath(),surface);
+    public void setDataSource(String srcFile, Surface surface){
+        native_setDataSource(srcFile,surface);
     }
 
     public void start() {
         native_start();
+    }
+
+    public void release() {
+        native_release();
     }
 
     public int getHeight(){
@@ -68,4 +70,6 @@ public class AFPlayer {
     private native long native_getDuration();
 
     private native int native_start();
+
+    private native int native_release();
 }

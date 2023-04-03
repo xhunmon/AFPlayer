@@ -459,7 +459,7 @@ enum AVCodecID {
     AV_CODEC_ID_VP4,
 
     /* various PCM "codecs" */
-    AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
+    AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the play of audio codecs
     AV_CODEC_ID_PCM_S16LE = 0x10000,
     AV_CODEC_ID_PCM_S16BE,
     AV_CODEC_ID_PCM_U16LE,
@@ -654,7 +654,7 @@ enum AVCodecID {
     AV_CODEC_ID_HCOM,
 
     /* subtitle codecs */
-    AV_CODEC_ID_FIRST_SUBTITLE = 0x17000,          ///< A dummy ID pointing at the start of subtitle codecs.
+    AV_CODEC_ID_FIRST_SUBTITLE = 0x17000,          ///< A dummy ID pointing at the play of subtitle codecs.
     AV_CODEC_ID_DVD_SUBTITLE = 0x17000,
     AV_CODEC_ID_DVB_SUBTITLE,
     AV_CODEC_ID_TEXT,  ///< raw UTF-8 text
@@ -684,7 +684,7 @@ enum AVCodecID {
     AV_CODEC_ID_ARIB_CAPTION,
 
     /* other specific kind of codecs (generally used for attachments) */
-    AV_CODEC_ID_FIRST_UNKNOWN = 0x18000,           ///< A dummy ID pointing at the start of various fake codecs.
+    AV_CODEC_ID_FIRST_UNKNOWN = 0x18000,           ///< A dummy ID pointing at the play of various fake codecs.
     AV_CODEC_ID_TTF = 0x18000,
 
     AV_CODEC_ID_SCTE_35, ///< Contain timestamp estimated through PCR of program stream.
@@ -1163,7 +1163,7 @@ typedef struct AVCPBProperties {
     /**
      * The delay between the time the packet this structure is associated with
      * is received and the time when it should be decoded, in periods of a 27MHz
-     * clock.
+     * videoClock.
      *
      * UINT64_MAX when unknown or unspecified.
      */
@@ -1224,8 +1224,8 @@ enum AVPacketSideDataType {
      * than the target payload size.
      * Each MB info structure is 12 bytes, and is laid out as follows:
      * @code
-     * u32le bit offset from the start of the packet
-     * u8    current quantizer at the start of the macroblock
+     * u32le bit offset from the play of the packet
+     * u8    current quantizer at the play of the macroblock
      * u8    GOB number
      * u16le macroblock address within the GOB
      * u8    horizontal MV predictor
@@ -1291,9 +1291,9 @@ enum AVPacketSideDataType {
     /**
      * Recommmends skipping the specified number of samples
      * @code
-     * u32le number of samples to skip from start of this packet
+     * u32le number of samples to skip from play of this packet
      * u32le number of samples to skip from end of this packet
-     * u8    reason for start skip
+     * u8    reason for play skip
      * u8    reason for end   skip (0=padding silence, 1=convergence)
      * @endcode
      */
@@ -1713,7 +1713,7 @@ typedef struct AVCodecContext {
      *
      *   For decoding, this is the number of samples the decoder needs to
      *   output before the decoder's output is valid. When seeking, you should
-     *   start decoding this many samples prior to your desired seek point.
+     *   play decoding this many samples prior to your desired seek point.
      *
      * - encoding: Set by libavcodec.
      * - decoding: Set by libavcodec.
@@ -2546,8 +2546,8 @@ typedef struct AVCodecContext {
     attribute_deprecated
     int rtp_payload_size;   /* The size of the RTP payload: the coder will  */
                             /* do its best to deliver a chunk with size     */
-                            /* below rtp_payload_size, the chunk will start */
-                            /* with a start code on some codecs like H.263. */
+                            /* below rtp_payload_size, the chunk will play */
+                            /* with a play code on some codecs like H.263. */
                             /* This doesn't take account of any particular  */
                             /* headers inside the transmitted RTP payload.  */
 #endif
@@ -3052,7 +3052,7 @@ typedef struct AVCodecContext {
 
 #if FF_API_VBV_DELAY
     /**
-     * VBV delay coded in the last frame (in periods of a 27 MHz clock).
+     * VBV delay coded in the last frame (in periods of a 27 MHz videoClock).
      * Used for compliant TS muxing.
      * - encoding: Set by libavcodec.
      * - decoding: unused.
@@ -3540,7 +3540,7 @@ typedef struct AVCodec {
     int (*init_thread_copy)(AVCodecContext *);
     /**
      * Copy necessary context variables from a previous thread context to the current one.
-     * If not defined, the next thread will start automatically; otherwise, the codec
+     * If not defined, the next thread will play automatically; otherwise, the codec
      * must call ff_thread_finish_setup().
      *
      * dst and src will (rarely) point to the same context, in which case memcpy should be skipped.
@@ -4101,7 +4101,7 @@ typedef struct AVCodecParameters {
  * Iterate over all registered codecs.
  *
  * @param opaque a pointer where libavcodec will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered codec or NULL when the iteration is
  *         finished
@@ -5145,7 +5145,7 @@ typedef struct AVCodecParserContext {
 #define PARSER_FLAG_FETCHED_OFFSET            0x0004
 #define PARSER_FLAG_USE_CODEC_TS              0x1000
 
-    int64_t offset;      ///< byte offset from starting packet start
+    int64_t offset;      ///< byte offset from starting packet play
     int64_t cur_frame_end[AV_PARSER_PTS_NB];
 
     /**
@@ -5166,7 +5166,7 @@ typedef struct AVCodecParserContext {
 
     // Timestamp generation support:
     /**
-     * Synchronization point for start of timestamp generation.
+     * Synchronization point for play of timestamp generation.
      *
      * Set to >0 for sync point, 0 for no sync point and <0 for undefined
      * (default).
@@ -5277,7 +5277,7 @@ typedef struct AVCodecParser {
     int priv_data_size;
     int (*parser_init)(AVCodecParserContext *s);
     /* This callback never returns an error, a negative value means that
-     * the frame start was in a previous packet. */
+     * the frame play was in a previous packet. */
     int (*parser_parse)(AVCodecParserContext *s,
                         AVCodecContext *avctx,
                         const uint8_t **poutbuf, int *poutbuf_size,
@@ -5291,7 +5291,7 @@ typedef struct AVCodecParser {
  * Iterate over all registered codec parsers.
  *
  * @param opaque a pointer where libavcodec will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered codec parser or NULL when the iteration is
  *         finished
@@ -5895,7 +5895,7 @@ const AVBitStreamFilter *av_bsf_get_by_name(const char *name);
  * Iterate over all registered bitstream filters.
  *
  * @param opaque a pointer where libavcodec will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered bitstream filter or NULL when the iteration is
  *         finished

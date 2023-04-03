@@ -17,15 +17,22 @@
 
 class CallJava {
 public:
-    CallJava(JavaVM *vm, JNIEnv* env, jobject instace);
+    CallJava(JavaVM *vm, JNIEnv *env, jobject instace);
+
     ~CallJava();
+
     //回调java
-    void  onError(ThreadType threadType, int code ,const char * error);
+    void onError(ThreadType threadType, int code, const char *error);
+
     void onPrepare(ThreadType threadType);
+
+    void onPlaying(ThreadType threadType, int64_t curDuration, int64_t totalDuration);
+
 private:
     JavaVM *vm;
     JNIEnv *env;
-    jobject  instance;
+    jobject instance;
+    jmethodID onPlayingId;
     jmethodID onErrorId;
     jmethodID onPreparedId;
 };

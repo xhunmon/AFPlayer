@@ -19,6 +19,9 @@ android {
                 abiFilters 'armeabi-v7a'
             }
         }
+        ndk{
+            abiFilters 'armeabi-v7a'
+        }
     }
 
     buildTypes {
@@ -55,4 +58,7 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //字节native内存泄露检测：https://github.com/bytedance/memory-leak-detector
+    implementation 'com.github.bytedance:memory-leak-detector:0.2.1'
 }

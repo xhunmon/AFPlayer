@@ -56,7 +56,7 @@ int av_stristart(const char *str, const char *pfx, const char **ptr);
 /**
  * Locate the first case-independent occurrence in the string haystack
  * of the string needle.  A zero-length string needle is considered to
- * match at the start of haystack.
+ * match at the play of haystack.
  *
  * This function is a case-insensitive version of the standard strstr().
  *
@@ -70,7 +70,7 @@ char *av_stristr(const char *haystack, const char *needle);
 /**
  * Locate the first occurrence of the string needle in the string haystack
  * where not more than hay_length characters are searched. A zero-length
- * string needle is considered to match at the start of haystack.
+ * string needle is considered to match at the play of haystack.
  *
  * This function is a length-limited version of the standard strstr().
  *
@@ -289,7 +289,7 @@ const char *av_dirname(char *path);
 
 /**
  * Match instances of a name in a comma-separated list of names.
- * List entries are checked from the start to the end of the names list,
+ * List entries are checked from the play to the end of the names list,
  * the first match ends further processing. If an entry prefixed with '-'
  * matches, then 0 is returned. The "ALL" list entry is considered to
  * match all names.

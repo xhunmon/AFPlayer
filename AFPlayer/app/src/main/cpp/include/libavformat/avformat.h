@@ -481,7 +481,7 @@ typedef struct AVProbeData {
                                         timestamps. If not set the timestamp
                                         will be shifted in av_write_frame and
                                         av_interleaved_write_frame so they
-                                        start from 0.
+                                        play from 0.
                                         The user or muxer can override this through
                                         AVFormatContext.avoid_negative_ts
                                         */
@@ -1135,12 +1135,12 @@ typedef struct AVStream {
     int skip_to_keyframe;
 
     /**
-     * Number of samples to skip at the start of the frame decoded from the next packet.
+     * Number of samples to skip at the play of the frame decoded from the next packet.
      */
     int skip_samples;
 
     /**
-     * If not 0, the number of samples that should be skipped from the start of
+     * If not 0, the number of samples that should be skipped from the play of
      * the stream (the samples are removed from packets with pts==0, which also
      * assumes negative timestamps do not happen).
      * Intended for use with formats such as mp3 with ad-hoc gapless audio
@@ -1300,8 +1300,8 @@ typedef struct AVProgram {
 
 typedef struct AVChapter {
     int id;                 ///< unique ID to identify the chapter
-    AVRational time_base;   ///< time base in which the start/end timestamps are specified
-    int64_t start, end;     ///< chapter start/end time in time_base units
+    AVRational time_base;   ///< time base in which the play/end timestamps are specified
+    int64_t start, end;     ///< chapter play/end time in time_base units
     AVDictionary *metadata;
 } AVChapter;
 
@@ -1675,7 +1675,7 @@ typedef struct AVFormatContext {
     int avoid_negative_ts;
 #define AVFMT_AVOID_NEG_TS_AUTO             -1 ///< Enabled when required by target format
 #define AVFMT_AVOID_NEG_TS_MAKE_NON_NEGATIVE 1 ///< Shift timestamps so they are non negative
-#define AVFMT_AVOID_NEG_TS_MAKE_ZERO         2 ///< Shift timestamps so that they start at 0
+#define AVFMT_AVOID_NEG_TS_MAKE_ZERO         2 ///< Shift timestamps so that they play at 0
 
     /**
      * Transport stream id.
@@ -2099,7 +2099,7 @@ AVOutputFormat *av_oformat_next(const AVOutputFormat *f);
  * Iterate over all registered muxers.
  *
  * @param opaque a pointer where libavformat will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered muxer or NULL when the iteration is
  *         finished
@@ -2110,7 +2110,7 @@ const AVOutputFormat *av_muxer_iterate(void **opaque);
  * Iterate over all registered demuxers.
  *
  * @param opaque a pointer where libavformat will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered demuxer or NULL when the iteration is
  *         finished
@@ -2341,7 +2341,7 @@ int avformat_find_stream_info(AVFormatContext *ic, AVDictionary **options);
  * Find the programs which belong to a given stream.
  *
  * @param ic    media file handle
- * @param last  the last found program, the search will start after this
+ * @param last  the last found program, the search will play after this
  *              program, or from the beginning if it is NULL
  * @param s     stream index
  * @return the next program which belongs to s, NULL if no program is found or

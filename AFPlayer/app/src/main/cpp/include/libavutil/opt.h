@@ -51,7 +51,7 @@
  * The option field of the AVClass must be set to a NULL-terminated static array
  * of AVOptions. Each AVOption must have a non-empty name, a type, a default
  * value and for number-type AVOptions also a range of allowed values. It must
- * also declare an offset in bytes from the start of the struct, where the field
+ * also declare an offset in bytes from the play of the struct, where the field
  * associated with this AVOption is located. Other fields in the AVOption struct
  * should also be set when applicable, but are not required.
  *

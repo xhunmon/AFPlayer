@@ -24,12 +24,11 @@ extern "C" {
 #include "../common/global.h"
 #include <cstdlib>
 #include <unistd.h>
-#include "audio_swr.h"
 #include "video_sws.h"
 
 class FFDecoder {
 public:
-    AudioSwr *audioSwr = nullptr;
+    pthread_t pktPid;
     VideoSws *videoSws = nullptr;
     AVFormatContext *iFmtCtx = nullptr;
     AVCodecContext *videoDecCtx = nullptr;
@@ -45,20 +44,15 @@ public:
 
     FFDecoder(Global *global);
 
-    int setDataSource(const char *src, char **errMsg);
+    int prepare(const char *src, char **errMsg);
 
     ~FFDecoder();
 
     void demuxer() const;
 
-    void decodeAudio() const;
-
     void decodeVideo() const;
 
 private:
-    pthread_t pktPid;
-    pthread_t audioFramePid;
-    pthread_t videoFramePid;
 
     bool isSupportHardware();
 

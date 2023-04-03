@@ -14,9 +14,10 @@
 #include <SLES/OpenSLES_Android.h>
 
 #include "../common/global.h"
+#include "../ffmpeg/ff_decoder.h"
 
 class SLPlayer {
-private:
+public:
     SLObjectItf engineObj = nullptr;
     SLEngineItf engineItf = nullptr;
     SLObjectItf outputMixObj = nullptr;
@@ -24,20 +25,28 @@ private:
     SLPlayItf playItf = nullptr;
     SLEnvironmentalReverbItf outputMixEnvironmentalReverb = nullptr;
     SLVolumeItf volumeItf = nullptr;
-    pthread_t playPid;
-    FILE *inFile;
     SLAndroidSimpleBufferQueueItf bufferQueue = nullptr;
 public:
+    pthread_t pidPlay;
     Global *global = nullptr;
+    AVCodecContext *audioDecCtx = nullptr;
+    AVFrame *frame = nullptr;
+    AVPacket *pkt = nullptr;
+    int data_size = 0;
+    uint8_t *buffer = nullptr;
 
 
+    SLPlayer(AVCodecContext *audioDecCtx);
     ~SLPlayer();
 
     int prepare(Global *g);
 
-    int start();
+    int initOpenSl();
 
-    int32_t getFrameData(void **buffer, uint8_t *out_buffer) const;
+    int decodeAudio();
+
+    void play();
+    void start();
 
 private:
     SLresult createEngine();

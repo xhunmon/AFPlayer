@@ -22,6 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/ll1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -34,6 +35,7 @@
             android:background="#ff000000"
             android:onClick="init"
             android:text="init"
+            android:textAllCaps="false"
             android:textColor="@color/white" />
 
         <Button
@@ -43,6 +45,7 @@
             android:background="#ff000000"
             android:onClick="start"
             android:text="start"
+            android:textAllCaps="false"
             android:textColor="@color/white" />
 
         <Button
@@ -52,6 +55,7 @@
             android:background="#ff000000"
             android:onClick="pause"
             android:text="pause"
+            android:textAllCaps="false"
             android:textColor="@color/white" />
 
         <Button
@@ -61,8 +65,76 @@
             android:background="#ff000000"
             android:onClick="stop"
             android:text="stop"
+            android:textAllCaps="false"
             android:textColor="@color/white" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/ll1">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#ff000000"
+            android:onClick="memoryStart"
+            android:text="memory start"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#ff000000"
+            android:onClick="memoryEnd"
+            android:text="memory end"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlMusicTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/txtCurTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:textColor="#ccc"
+            android:textSize="10dp"
+            tools:text="01:34" />
+
+        <SeekBar
+            android:id="@+id/timeSeekBar"
+            style="@style/time_seek_bar_sytle"
+            android:layout_centerInParent="true"
+            android:layout_toStartOf="@+id/txtTotalTime"
+            android:layout_toEndOf="@id/txtCurTime"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp" />
+
+        <TextView
+            android:id="@+id/txtTotalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:textColor="#ccc"
+            android:textSize="10dp"
+            tools:text="05:34" />
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

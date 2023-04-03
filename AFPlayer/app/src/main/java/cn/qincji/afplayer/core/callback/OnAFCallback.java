@@ -2,6 +2,7 @@ package cn.qincji.afplayer.core.callback;
 
 /**
  * description: 播放器的状态回调  <br>
+ *
  * @author 秦城季
  * @email xhunmon@126.com
  * @blog https://qincji.gitee.io
@@ -10,7 +11,7 @@ package cn.qincji.afplayer.core.callback;
 public interface OnAFCallback {
 
     /**
-     * 调用{#setDataSource(...)}之后
+     * 调用{#prepare(...)}之后
      */
     void onInitialized();
 
@@ -27,7 +28,7 @@ public interface OnAFCallback {
 
     void onSeek(long curDuration);
 
-    void onPlaying(long curDuration);
+    void onPlaying(long curDuration, long totalDuration);
 
     void onError(int code, String msg);
 

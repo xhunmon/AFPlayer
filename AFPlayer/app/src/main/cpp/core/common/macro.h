@@ -16,9 +16,8 @@ enum ThreadType {
 
 enum Status {
     None,
-    Initialized,
     Prepared,
-    Started,
+    Playing,
     Paused,
     Stopped,
     Released,
@@ -27,8 +26,8 @@ enum Status {
 
 //#define DEFAULT_MAX_VIDEOQ_SIZE (5 * 256 * 1024) //默认视频队列大小
 //#define DEFAULT_MAX_AUDIOQ_SIZE (5 * 16 * 1024)  //默认音频队列大小
-#define DEFAULT_MAX_VIDEOQ_SIZE (50) //默认视频队列大小
-#define DEFAULT_MAX_AUDIOQ_SIZE (50)  //默认音频队列大小
+#define DEFAULT_MAX_VIDEOQ_SIZE (1024) //默认视频队列大小
+#define DEFAULT_MAX_AUDIOQ_SIZE (1024)  //默认音频队列大小
 
 #define ERR_OPEN_FAIL -101 //打开文件失败
 #define ERR_NO_STREAM -102 //输入源异常

@@ -701,7 +701,7 @@ int avfilter_process_command(AVFilterContext *filter, const char *cmd, const cha
  * Iterate over all registered filters.
  *
  * @param opaque a pointer where libavfilter will store the iteration state. Must
- *               point to NULL to start the iteration.
+ *               point to NULL to play the iteration.
  *
  * @return the next registered filter or NULL when the iteration is
  *         finished

@@ -5,6 +5,7 @@
 extern "C" {
 #include "libavcodec/jni.h"
 }
+//@link：https://zhuanlan.zhihu.com/p/547250316
 
 Player *player = nullptr;
 JavaVM *javaVm = nullptr;
@@ -43,8 +44,8 @@ Java_cn_qincji_afplayer_core_AFPlayer_native_1setDataSource(JNIEnv *env, jobject
     if (player) {
         const char *pSrc = env->GetStringUTFChars(src, nullptr);
         ANativeWindow *window = ANativeWindow_fromSurface(env, surface);
-        player->setDataSource(pSrc, window,env);
-        env->ReleaseStringUTFChars(src, pSrc);
+        player->setDataSource(pSrc, window, env);
+//        env->ReleaseStringUTFChars(src, pSrc);
     } else {
         LOGW("播放器已被销毁！！");
     }
@@ -89,6 +90,19 @@ JNIEXPORT jint JNICALL
 Java_cn_qincji_afplayer_core_AFPlayer_native_1start(JNIEnv *env, jobject thiz) {
     if (player) {
         return player->start();
+    } else {
+        LOGW("播放器已被销毁！！");
+        return 0;
+    }
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_cn_qincji_afplayer_core_AFPlayer_native_1release(JNIEnv *env, jobject thiz) {
+    if (player) {
+        delete player;
+        player = nullptr;
+        return 0;
     } else {
         LOGW("播放器已被销毁！！");
         return 0;

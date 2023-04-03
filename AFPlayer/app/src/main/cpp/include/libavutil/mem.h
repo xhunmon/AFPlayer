@@ -497,7 +497,7 @@ void *av_memdup(const void *p, size_t size);
  * Overlapping memcpy() implementation.
  *
  * @param dst  Destination buffer
- * @param back Number of bytes back to start copying (i.e. the initial size of
+ * @param back Number of bytes back to play copying (i.e. the initial size of
  *             the overlapping window); must be > 0
  * @param cnt  Number of bytes to copy; must be >= 0
  *

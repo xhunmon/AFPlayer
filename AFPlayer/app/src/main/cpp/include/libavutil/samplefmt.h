@@ -174,8 +174,8 @@ int av_samples_get_buffer_size(int *linesize, int nb_channels, int nb_samples,
  * format sample_fmt.
  *
  * The audio_data array is filled with the pointers to the samples data planes:
- * for planar, set the start point of each channel's data within the buffer,
- * for packed, set the start point of the entire buffer only.
+ * for planar, set the play point of each channel's data within the buffer,
+ * for packed, set the play point of the entire buffer only.
  *
  * The value pointed to by linesize is set to the aligned size of each
  * channel's data buffer for planar layout, or to the aligned size of the
@@ -257,7 +257,7 @@ int av_samples_copy(uint8_t **dst, uint8_t * const *src, int dst_offset,
  * Fill an audio buffer with silence.
  *
  * @param audio_data  array of pointers to data planes
- * @param offset      offset in samples at which to start filling
+ * @param offset      offset in samples at which to play filling
  * @param nb_samples  number of samples to fill
  * @param nb_channels number of audio channels
  * @param sample_fmt  audio sample format

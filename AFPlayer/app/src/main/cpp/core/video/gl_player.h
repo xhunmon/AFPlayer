@@ -12,33 +12,55 @@
 
 
 #include "../common/global.h"
-#include <GLES3/gl32.h>
+#include "gl_helper.cpp"
+#include <GLES2/gl2.h>
+//#include <GLES3/gl32.h>
 #include <EGL/egl.h>
 #include <unistd.h>
 #include <thread>
+
+extern "C" {
+#include "libavutil/imgutils.h"
+#include <libswscale/swscale.h>
+};
 
 class GLPlayer {
 private:
     EGLDisplay display;
     EGLSurface surface = nullptr;
-    GLuint VBO, VAO, EBO;
-    GLuint texture;
     GLuint shaderProgram;
+    GLuint avPosition_yuv;
+    GLuint afPosition_yuv;
+    GLint sampler_y;
+    GLint sampler_u;
+    GLint sampler_v;
+    GLuint *textureId_yuv;
+    GLfloat *vertexData;
+    GLfloat *textureData;
+
 public:
     Global *global = nullptr;
     JavaVM *javaVm;
+    pthread_mutex_t codecMutex;
+    AVCodecContext *videoDecCtx = nullptr;
+
+    GLPlayer(AVCodecContext *videoDecCtx);
 
     ~GLPlayer();
 
     int prepare(Global *g);
 
-    int start();
+    void playVideo();
+
+    void drawYUV(const int width, const int height, const void *y, const void *u, const void *v);
 
     bool initEgl();
 
     bool initOpenGL();
 
     void play();
+
+    double getDelayTime(AVFrame &avFrame);
 };
 
 

@@ -54,10 +54,6 @@ FFDecoder::~FFDecoder() {
     if (iFmtCtx) {
         avformat_close_input(&iFmtCtx);
     }
-    if (audioSwr) {
-        delete audioSwr;
-        audioSwr = nullptr;
-    }
     if (videoSws) {
         delete videoSws;
         videoSws = nullptr;
@@ -71,7 +67,7 @@ FFDecoder::~FFDecoder() {
     LOGD("release FFDecoder finnish!");
 }
 
-int FFDecoder::setDataSource(const char *src, char **errMsg) {
+int FFDecoder::prepare(const char *src, char **errMsg) {
     int ret;
     if ((ret = avformat_open_input(&iFmtCtx, src, nullptr, nullptr)) != 0) {
         LOGE("Couldn't open file %s: %d(%s)", src, ret, av_err2str(ret));
@@ -130,7 +126,7 @@ void FFDecoder::logCallback(void *ptr, int level, const char *fmt, va_list vl) {
 }
 
 bool FFDecoder::isSupportHardware() {
-    if(!global->openHardwareDecode){
+    if (!global->openHardwareDecode) {
         return false;
     }
     if (videoIndex < 0) {//没有视频流，不需要硬解码
@@ -258,104 +254,42 @@ int FFDecoder::createDecoderContext(int index, bool isSupportHardware, char **er
 static void *demuxerThread(void *data) {
     auto *ffDecoder = (FFDecoder *) data;
     ffDecoder->demuxer();
-    return nullptr;
-}
-
-static void *decodeAudioThread(void *data) {
-    auto *ffDecoder = (FFDecoder *) data;
-    ffDecoder->decodeAudio();
-    return 0;
-}
-
-static void *decodeVideoThread(void *data) {
-    auto *ffDecoder = (FFDecoder *) data;
-    ffDecoder->decodeVideo();
-    return 0;
+    pthread_exit(&ffDecoder->pktPid);
 }
 
 void FFDecoder::decodeThread() {
     pthread_create(&pktPid, nullptr, demuxerThread, this);
-    pthread_create(&audioFramePid, nullptr, decodeAudioThread, this);
-    pthread_create(&videoFramePid, nullptr, decodeVideoThread, this);
 }
 
 void FFDecoder::demuxer() const {
     int ret;
     AVPacket *pkt;
-    while (global->status == Started || global->status == Paused) {
-        while (global->status == Paused) {
-            usleep(10);
-        }
+    while (global->status == Playing) {
         if (global->seekPos > 0) {//从指定位置开始解码
 //            ret = avformat_seek_file(iFmtCtx, -1, seek_min, seek_target, seek_max, 1);
         }
         if (!(pkt = av_packet_alloc())) {
             LOGE("Error alloc packet!");
+            releasePktCallback(&pkt);
             break;
         }
         if ((ret = av_read_frame(iFmtCtx, pkt)) < 0) {//已解码完成
             LOGE("read frame fail: %d(%s)", ret, av_err2str(ret));
+            releasePktCallback(&pkt);
             break;
         }
         if (pkt->stream_index == audioIndex) {
             global->audioPktQ->push(pkt);
         } else if (pkt->stream_index == videoIndex) {
             global->videoPktQ->push(pkt);
+//            releasePktCallback(&pkt);
         }
     }
-}
-
-void FFDecoder::decodeAudio() const {
-    AVPacket *pkt;
-    AVFrame *frame;
-    int ret;
-    while (global->status == Started || global->status == Paused) {
-        while (global->status == Paused) {
-            usleep(10);
-        }
-        if (!global->audioPktQ->pop(pkt)) {
-            break;
-        }
-        if ((ret = avcodec_send_packet(audioDecCtx, pkt)) < 0) {
-            if (ret != AVERROR(EAGAIN)) {
-                LOGE("Fail send audio packet: %d(%s)", ret, av_err2str(ret));
-                break;
-            }
-            LOGW("Fail send audio packet: %d(%s)", ret, av_err2str(ret));
-        }
-        while (ret >= 0) {
-            if (!(frame = av_frame_alloc())) {
-                LOGE("Error alloc audio frame\n");
-                goto end;
-            }
-            ret = avcodec_receive_frame(audioDecCtx, frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-                LOGW("Fail receive audio frame: %d(%s)", ret, av_err2str(ret));
-                av_frame_free(&frame);
-                break;
-            } else if (ret < 0) {
-                LOGE("Error during audio decoding: %d(%s)", ret, av_err2str(ret));
-                av_frame_free(&frame);
-                goto end;
-            }
-
-//            LOGD("receive audio frame success: pts=%lld", frame->pts);
-
-            //是否需要重采样
-            if (audioSwr) {
-                audioSwr->resampleAudio(&frame);
-            }
-
-            global->audioFrameQ->push(frame);
-        }
-    }
-    end:
-    LOGD("decode audio finish! ");
 }
 
 void FFDecoder::decodeVideo() const {
     AVPacket *pkt;
-    while (global->status == Started || global->status == Paused) {
+    while (global->status == Playing || global->status == Paused) {
         while (global->status == Paused) {
             usleep(10);
         }
@@ -382,28 +316,13 @@ void FFDecoder::decodeVideo() const {
 
 int FFDecoder::initAudioSwr() {
     int ret = 1;
-    audioSwr = new AudioSwr(audioDecCtx, global);
-    if (!audioSwr->isNeedSwr()) {//不需要重采样就直接成功
-        LOGD("not need swr for audio!");
-        outFmtType = audioSwr->outFmtType;
-        delete audioSwr;
-        audioSwr = nullptr;
-        return ret;
-    }
-    outFmtType = audioSwr->outFmtType;
-
-    if (!audioSwr->initSwr()) {
-        //初始化失败
-        delete audioSwr;
-        audioSwr = nullptr;
-        return -1;
-    }
     return ret;
 }
 
 int FFDecoder::initVideoSws() {
-    videoSws = new VideoSws(videoDecCtx, global);
-    return videoSws->initSws();
+//    videoSws = new VideoSws(videoDecCtx, global);
+//    return videoSws->initSws();
+    return 1;
 }
 
 int FFDecoder::decodeAndPushVideo(AVCodecContext *avctx, AVPacket *packet) const {
@@ -434,7 +353,8 @@ int FFDecoder::decodeAndPushVideo(AVCodecContext *avctx, AVPacket *packet) const
             goto fail;
         }
 
-        LOGD("receive video frame success: pts=%5lld, clock=%5lf", frame->pts,frame->pts * av_q2d(global->videoTimeBase));
+        LOGD("receive video frame success: pts=%5lld, videoClock=%5lf", frame->pts,
+             frame->pts * av_q2d(global->videoTimeBase));
 
         if (frame->format == hwPixFmt) {
             if (!(sw_frame = av_frame_alloc())) {
@@ -460,7 +380,7 @@ int FFDecoder::decodeAndPushVideo(AVCodecContext *avctx, AVPacket *packet) const
             videoSws->scaleVideo(&tmp_frame);
         }
 
-        global->videoFrameQ->push(tmp_frame);
+//        global->videoFrameQ->push(tmp_frame);
     }
 
     fail:

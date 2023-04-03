@@ -20,6 +20,7 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject instace) {
     jclass clazz = env->GetObjectClass(instace);
     onPreparedId = env->GetMethodID(clazz, "onPrepared", "()V");
     onErrorId = env->GetMethodID(clazz, "onError", "(ILjava/lang/String;)V");
+    onPlayingId = env->GetMethodID(clazz, "onPlaying", "(JJ)V");
 }
 
 CallJava::~CallJava() {
@@ -45,6 +46,18 @@ void CallJava::onPrepare(ThreadType threadType) {
         JNIEnv *my_env;
         vm->AttachCurrentThread(&my_env, nullptr);
         my_env->CallVoidMethod(instance, onPreparedId);
+        vm->DetachCurrentThread();
+    }
+}
+
+void CallJava::onPlaying(ThreadType threadType, int64_t curDuration, int64_t totalDuration) {
+    if (threadType == Thread_main) {//主线程
+        env->CallVoidMethod(instance, onPlayingId, curDuration, totalDuration);
+    } else {//子线程
+        JNIEnv *my_env;
+        //获得属于我这一个线程的jnienv
+        vm->AttachCurrentThread(&my_env, nullptr);
+        my_env->CallVoidMethod(instance, onPlayingId, curDuration, totalDuration);
         vm->DetachCurrentThread();
     }
 }

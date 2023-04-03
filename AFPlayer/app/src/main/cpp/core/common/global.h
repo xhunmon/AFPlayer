@@ -17,10 +17,30 @@ extern "C" {
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES.h>
 };
+
 #include "android_log.h"
 
 #include "macro.h"
 #include "safe_queue.h"
+#include "call_java.h"
+
+static void releasePktCallback(AVPacket **pkt) {
+    if (pkt) {
+//        LOGD("release packet pts: %5lld \tpos: %5lld ", (*pkt)->pts, (*pkt)->pos);
+        av_packet_free(pkt);
+        av_free(*pkt);
+        *pkt = nullptr;
+    }
+}
+
+static void releaseFrameCallback(AVFrame **frame) {
+    if (frame) {
+//        LOGD("release packet frame: %5lld \tpos: %5lld ", (*frame)->pts, (*frame)->pkt_pos);
+        av_frame_free(frame);
+        av_free(*frame);
+        *frame = nullptr;
+    }
+}
 
 class Global {
 public:
@@ -28,11 +48,11 @@ public:
 
     ~Global();
 
+    CallJava *callJava = nullptr;
     Status status;
     SafeQueue<AVPacket *> *audioPktQ = nullptr;
     SafeQueue<AVPacket *> *videoPktQ = nullptr;
-    SafeQueue<AVFrame *> *audioFrameQ = nullptr;
-    SafeQueue<AVFrame *> *videoFrameQ = nullptr;
+//    SafeQueue<AVFrame *> *videoFrameQ = nullptr;
     int64_t seekPos = 0;
     JNIEnv *env;
 
@@ -43,6 +63,9 @@ public:
     uint8_t bytesPerSample = 0;
     uint32_t nbSample = 0;
     uint32_t frameSize = 0;
+    AVSampleFormat sampleFormat;
+    double nowTime;//当前frame时间
+    double videoClock;//当前播放的时间    准确时间 音频
 
     /**********     视频相关参数      ****************/
     bool openHardwareDecode = false;//开启硬件解码出现严重掉帧情况，原因未知
@@ -52,9 +75,12 @@ public:
     int height = 0;
     ANativeWindow *window = nullptr;
 
-    double audioClock = 0;//当前音频时钟
-    AVRational audioTimeBase = {0,1};
-    AVRational videoTimeBase = {0,1};
+    uint64_t duration = 0;//总时长
+    double audioClock = 0;//当前音频时钟，时钟以这个为准。。
+    double lastUpTime = 0;//上次更新时钟的时间，用来回调给java时控制间隔
+    double defaultDelayTime = 0.04;
+    AVRational audioTimeBase = {0, 1};
+    AVRational videoTimeBase = {0, 1};
 
 
     void setAllQueueWork(bool work);

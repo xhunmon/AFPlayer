@@ -20,11 +20,16 @@
 #include <jni.h>
 
 class Player : public UserPlayer {
+public:
     CallJava *callJava = nullptr;
     FFDecoder *ffDecoder = nullptr;
     SLPlayer *slPlayer = nullptr;
     GLPlayer *glPlayer = nullptr;
     Global *global;
+    const char *src;
+    ANativeWindow *window;
+    JNIEnv *env;
+    pthread_t pidPrepare;
 public:
     void setJavaStatucCallback(JavaVM *javaVm, JNIEnv *env, jobject *onAFCallback);
 
@@ -39,6 +44,8 @@ public:
     virtual unsigned int getWidth();
 
     virtual int start();
+
+    void prepare();
 
     Player();
 
